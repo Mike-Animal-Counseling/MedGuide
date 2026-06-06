@@ -9,16 +9,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_DOCS = [
-    "docs/ARCHITECTURE.md",
+    "docs/README.md",
+    "docs/SETUP.md",
     "docs/PLACEHOLDERS_AND_SECRETS.md",
-    "docs/AI_SAFETY.md",
-    "docs/ACCESSIBILITY.md",
+    "docs/API.md",
+    "docs/SAFETY_PRIVACY_ACCESSIBILITY.md",
     "docs/TESTING.md",
-    "docs/GITHUB_SETUP.md",
-    "docs/PROVIDER_SETUP_GUIDE.md",
-    "docs/CI_CD.md",
     "docs/DEPLOYMENT.md",
-    "docs/OBSERVABILITY.md",
     "docs/PRODUCTION_READINESS_CHECKLIST.md",
 ]
 

@@ -224,5 +224,4 @@ python scripts/check_docs_config.py
 
 CI validates both applications, security gates, documentation consistency, and the Compose file.
 Production readiness additionally requires integration, security, privacy, and manual
-accessibility testing. See `docs/CI_CD.md` for workflow details and recommended branch protection
-rules.
+accessibility testing. GitHub workflow files live in `.github/workflows/`.

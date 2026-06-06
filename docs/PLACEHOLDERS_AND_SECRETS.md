@@ -4,7 +4,7 @@ This file is the single source of truth for MedGuide AI configuration, external 
 secrets, and placeholder values. If a new provider, environment variable, feature flag, or secret
 is introduced, document it here and update `.env.example` in the same change.
 
-For a simpler step-by-step registration guide, see `docs/PROVIDER_SETUP_GUIDE.md`.
+For a simpler step-by-step registration guide, see `docs/SETUP.md`.
 
 MedGuide AI must not fabricate production behavior. Missing production credentials must fail
 safely with a clear configuration or service-unavailable error. Test mocks are allowed only in

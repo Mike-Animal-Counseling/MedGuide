@@ -1,7 +1,7 @@
 # API
 
-The API is served under `/api/v1`. All medication endpoints require a valid Bearer access token.
-Errors use the standard response envelope documented in `ARCHITECTURE.md`.
+The API is served under `/api/v1`. Protected endpoints require a valid Bearer access token.
+Errors use a standard response envelope with `code`, `message`, and `request_id`.
 
 ## Medication Safety Boundary
 

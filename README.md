@@ -73,8 +73,8 @@ at `http://localhost:8000/ready` returns success only when PostgreSQL and Redis 
 
 ## GitHub Setup
 
-Before pushing the project, follow [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md). It explains how
-to avoid committing secrets, push the repo, and confirm GitHub Actions.
+Before pushing or configuring providers, follow [docs/SETUP.md](docs/SETUP.md). It explains how to
+avoid committing secrets, confirm GitHub Actions, and configure providers one step at a time.
 
 ## Quality Commands
 
@@ -112,15 +112,12 @@ generative AI, and external authentication providers are not selected. Productio
 back to fabricated provider output. Treat
 [docs/PLACEHOLDERS_AND_SECRETS.md](docs/PLACEHOLDERS_AND_SECRETS.md) as the single source of truth
 for secrets, placeholder values, provider setup, and production readiness checklists.
-Use [docs/PROVIDER_SETUP_GUIDE.md](docs/PROVIDER_SETUP_GUIDE.md) for the simpler step-by-step
-provider registration order.
+Use [docs/SETUP.md](docs/SETUP.md) for the simpler step-by-step provider registration order.
 
-Review [docs/AI_SAFETY.md](docs/AI_SAFETY.md) before introducing any AI-generated medication
-content.
+Review [docs/SAFETY_PRIVACY_ACCESSIBILITY.md](docs/SAFETY_PRIVACY_ACCESSIBILITY.md) before
+introducing any AI-generated medication content.
 
 Medication endpoint behavior and safety boundaries are documented in [docs/API.md](docs/API.md).
-Privacy, audit logging, and retention behavior are documented in
-[docs/PRIVACY_AND_RETENTION.md](docs/PRIVACY_AND_RETENTION.md).
 Deployment assets, migration commands, worker commands, Render/Railway notes, and AWS ECS
 production guidance are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 The current release readiness status, manual tasks, required credentials, and deployment blockers
