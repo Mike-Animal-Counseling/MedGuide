@@ -112,6 +112,8 @@ generative AI, and external authentication providers are not selected. Productio
 back to fabricated provider output. Treat
 [docs/PLACEHOLDERS_AND_SECRETS.md](docs/PLACEHOLDERS_AND_SECRETS.md) as the single source of truth
 for secrets, placeholder values, provider setup, and production readiness checklists.
+Use [docs/PROVIDER_SETUP_GUIDE.md](docs/PROVIDER_SETUP_GUIDE.md) for the simpler step-by-step
+provider registration order.
 
 Review [docs/AI_SAFETY.md](docs/AI_SAFETY.md) before introducing any AI-generated medication
 content.

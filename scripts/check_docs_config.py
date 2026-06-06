@@ -15,6 +15,7 @@ REQUIRED_DOCS = [
     "docs/ACCESSIBILITY.md",
     "docs/TESTING.md",
     "docs/GITHUB_SETUP.md",
+    "docs/PROVIDER_SETUP_GUIDE.md",
     "docs/CI_CD.md",
     "docs/DEPLOYMENT.md",
     "docs/OBSERVABILITY.md",
