@@ -1,0 +1,133 @@
+# Reference only. Do not commit real production secrets.
+# Prefer a managed PostgreSQL database, managed Redis, private S3 bucket, and platform secret manager.
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: medguide-ai-backend:latest
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      API_CORS_ORIGINS: ${API_CORS_ORIGINS:?Set explicit production CORS origins}
+      DATABASE_URL: ${DATABASE_URL:?Set managed PostgreSQL URL}
+      REDIS_URL: ${REDIS_URL:?Set managed Redis URL}
+      JWT_SECRET: ${JWT_SECRET:?Set production JWT secret}
+      STORAGE_PROVIDER: s3
+      S3_BUCKET: ${S3_BUCKET:?Set private S3 bucket}
+      S3_REGION: ${S3_REGION:?Set S3 region}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set S3 access key}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3 secret key}
+      OCR_PROVIDER: aws_textract
+      AWS_TEXTRACT_REGION: ${AWS_TEXTRACT_REGION:?Set Textract region}
+      AWS_TEXTRACT_ACCESS_KEY_ID: ${AWS_TEXTRACT_ACCESS_KEY_ID:?Set Textract access key}
+      AWS_TEXTRACT_SECRET_ACCESS_KEY: ${AWS_TEXTRACT_SECRET_ACCESS_KEY:?Set Textract secret key}
+      VISION_PROVIDER: aws_rekognition
+      AWS_REKOGNITION_REGION: ${AWS_REKOGNITION_REGION:?Set Rekognition region}
+      AWS_REKOGNITION_ACCESS_KEY_ID: ${AWS_REKOGNITION_ACCESS_KEY_ID:?Set Rekognition access key}
+      AWS_REKOGNITION_SECRET_ACCESS_KEY: ${AWS_REKOGNITION_SECRET_ACCESS_KEY:?Set Rekognition secret key}
+      NOTIFICATION_PROVIDER: expo
+      EXPO_PUSH_ACCESS_TOKEN: ${EXPO_PUSH_ACCESS_TOKEN:?Set Expo push access token}
+      CAREGIVER_INVITE_TOKEN_RETURN_ENABLED: "false"
+      ENABLE_LOCAL_DEV_STORAGE: "false"
+      ENABLE_TEST_PROVIDER_MOCKS: "false"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  migrate:
+    image: medguide-ai-backend:latest
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      APP_ENV: production
+      API_CORS_ORIGINS: ${API_CORS_ORIGINS:?Set explicit production CORS origins}
+      DATABASE_URL: ${DATABASE_URL:?Set managed PostgreSQL URL}
+      REDIS_URL: ${REDIS_URL:?Set managed Redis URL}
+      JWT_SECRET: ${JWT_SECRET:?Set production JWT secret}
+      STORAGE_PROVIDER: s3
+      S3_BUCKET: ${S3_BUCKET:?Set private S3 bucket}
+      S3_REGION: ${S3_REGION:?Set S3 region}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set S3 access key}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3 secret key}
+      OCR_PROVIDER: aws_textract
+      AWS_TEXTRACT_REGION: ${AWS_TEXTRACT_REGION:?Set Textract region}
+      AWS_TEXTRACT_ACCESS_KEY_ID: ${AWS_TEXTRACT_ACCESS_KEY_ID:?Set Textract access key}
+      AWS_TEXTRACT_SECRET_ACCESS_KEY: ${AWS_TEXTRACT_SECRET_ACCESS_KEY:?Set Textract secret key}
+      VISION_PROVIDER: aws_rekognition
+      AWS_REKOGNITION_REGION: ${AWS_REKOGNITION_REGION:?Set Rekognition region}
+      AWS_REKOGNITION_ACCESS_KEY_ID: ${AWS_REKOGNITION_ACCESS_KEY_ID:?Set Rekognition access key}
+      AWS_REKOGNITION_SECRET_ACCESS_KEY: ${AWS_REKOGNITION_SECRET_ACCESS_KEY:?Set Rekognition secret key}
+      NOTIFICATION_PROVIDER: expo
+      EXPO_PUSH_ACCESS_TOKEN: ${EXPO_PUSH_ACCESS_TOKEN:?Set Expo push access token}
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    image: medguide-ai-worker:latest
+    command: ["celery", "-A", "app.worker.celery_app", "worker", "--loglevel=INFO"]
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      API_CORS_ORIGINS: ${API_CORS_ORIGINS:?Set explicit production CORS origins}
+      DATABASE_URL: ${DATABASE_URL:?Set managed PostgreSQL URL}
+      REDIS_URL: ${REDIS_URL:?Set managed Redis URL}
+      JWT_SECRET: ${JWT_SECRET:?Set production JWT secret}
+      STORAGE_PROVIDER: s3
+      S3_BUCKET: ${S3_BUCKET:?Set private S3 bucket}
+      S3_REGION: ${S3_REGION:?Set S3 region}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set S3 access key}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3 secret key}
+      OCR_PROVIDER: aws_textract
+      AWS_TEXTRACT_REGION: ${AWS_TEXTRACT_REGION:?Set Textract region}
+      AWS_TEXTRACT_ACCESS_KEY_ID: ${AWS_TEXTRACT_ACCESS_KEY_ID:?Set Textract access key}
+      AWS_TEXTRACT_SECRET_ACCESS_KEY: ${AWS_TEXTRACT_SECRET_ACCESS_KEY:?Set Textract secret key}
+      VISION_PROVIDER: aws_rekognition
+      AWS_REKOGNITION_REGION: ${AWS_REKOGNITION_REGION:?Set Rekognition region}
+      AWS_REKOGNITION_ACCESS_KEY_ID: ${AWS_REKOGNITION_ACCESS_KEY_ID:?Set Rekognition access key}
+      AWS_REKOGNITION_SECRET_ACCESS_KEY: ${AWS_REKOGNITION_SECRET_ACCESS_KEY:?Set Rekognition secret key}
+      NOTIFICATION_PROVIDER: expo
+      EXPO_PUSH_ACCESS_TOKEN: ${EXPO_PUSH_ACCESS_TOKEN:?Set Expo push access token}
+      ENABLE_LOCAL_DEV_STORAGE: "false"
+      ENABLE_TEST_PROVIDER_MOCKS: "false"
+
+  beat:
+    image: medguide-ai-worker:latest
+    command: ["celery", "-A", "app.worker.celery_app", "beat", "--loglevel=INFO"]
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      API_CORS_ORIGINS: ${API_CORS_ORIGINS:?Set explicit production CORS origins}
+      DATABASE_URL: ${DATABASE_URL:?Set managed PostgreSQL URL}
+      REDIS_URL: ${REDIS_URL:?Set managed Redis URL}
+      JWT_SECRET: ${JWT_SECRET:?Set production JWT secret}
+      STORAGE_PROVIDER: s3
+      S3_BUCKET: ${S3_BUCKET:?Set private S3 bucket}
+      S3_REGION: ${S3_REGION:?Set S3 region}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Set S3 access key}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Set S3 secret key}
+      OCR_PROVIDER: aws_textract
+      AWS_TEXTRACT_REGION: ${AWS_TEXTRACT_REGION:?Set Textract region}
+      AWS_TEXTRACT_ACCESS_KEY_ID: ${AWS_TEXTRACT_ACCESS_KEY_ID:?Set Textract access key}
+      AWS_TEXTRACT_SECRET_ACCESS_KEY: ${AWS_TEXTRACT_SECRET_ACCESS_KEY:?Set Textract secret key}
+      VISION_PROVIDER: aws_rekognition
+      AWS_REKOGNITION_REGION: ${AWS_REKOGNITION_REGION:?Set Rekognition region}
+      AWS_REKOGNITION_ACCESS_KEY_ID: ${AWS_REKOGNITION_ACCESS_KEY_ID:?Set Rekognition access key}
+      AWS_REKOGNITION_SECRET_ACCESS_KEY: ${AWS_REKOGNITION_SECRET_ACCESS_KEY:?Set Rekognition secret key}
+      NOTIFICATION_PROVIDER: expo
+      EXPO_PUSH_ACCESS_TOKEN: ${EXPO_PUSH_ACCESS_TOKEN:?Set Expo push access token}
+      ENABLE_LOCAL_DEV_STORAGE: "false"
+      ENABLE_TEST_PROVIDER_MOCKS: "false"

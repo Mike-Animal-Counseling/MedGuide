@@ -1,0 +1,9 @@
+Alembic migrations for the MedGuide AI PostgreSQL database.
+
+Create a migration after changing imported SQLAlchemy models:
+
+    alembic revision --autogenerate -m "describe change"
+
+Apply migrations:
+
+    alembic upgrade head

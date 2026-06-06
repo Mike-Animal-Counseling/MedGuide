@@ -1,0 +1,46 @@
+name: Docs CI
+
+on:
+  pull_request:
+    paths:
+      - ".env.example"
+      - "docker-compose.yml"
+      - "docs/**"
+      - "scripts/check_docs_config.py"
+      - ".github/workflows/docs-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".env.example"
+      - "docker-compose.yml"
+      - "docs/**"
+      - "scripts/check_docs_config.py"
+      - ".github/workflows/docs-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-and-config:
+    name: Documentation And Configuration Gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify required docs, placeholders, and env example
+        run: python scripts/check_docs_config.py
+
+      - name: Validate Docker Compose configuration
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
