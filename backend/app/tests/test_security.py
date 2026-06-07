@@ -30,4 +30,4 @@ def test_token_expiration_uses_configuration() -> None:
 
 def test_missing_jwt_configuration_fails_clearly() -> None:
     with pytest.raises(AppError, match="JWT authentication is not configured"):
-        TokenManager(Settings(app_env=Environment.TEST))
+        TokenManager(Settings(app_env=Environment.TEST, jwt_secret=""))

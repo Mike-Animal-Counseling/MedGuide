@@ -88,6 +88,7 @@ def due_dose(
     )
     assert updated.status_code == 200
     dose = client.get("/api/v1/dose-logs/today", headers=headers).json()[0]
+    set_dose_scheduled_time(client, dose["id"], scheduled_time)
     return headers, dose
 
 
@@ -137,6 +138,21 @@ def load_dose_status(client: TestClient, dose_log_id: str) -> DoseStatus:
             return status
 
     return asyncio.run(load())
+
+
+def set_dose_scheduled_time(client: TestClient, dose_log_id: str, scheduled_time: datetime) -> None:
+    app = client.app
+    assert isinstance(app, FastAPI)
+
+    async def update() -> None:
+        factory: async_sessionmaker[AsyncSession] = app.state.session_factory
+        async with factory() as session:
+            dose = await session.get(DoseLog, UUID(dose_log_id))
+            assert dose is not None
+            dose.scheduled_time = scheduled_time
+            await session.commit()
+
+    asyncio.run(update())
 
 
 def test_push_reminder_sent_and_duplicate_job_is_idempotent(client: TestClient) -> None:

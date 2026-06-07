@@ -10,12 +10,13 @@ Done:
 [x] Project pushed to GitHub
 [x] GitHub Actions are green
 [x] Provider setup guide exists
+[x] Real PostgreSQL database configured locally with Neon
+[x] PostgreSQL migrations applied through Alembic revision 0011
 ```
 
 Not done yet:
 
 ```text
-[ ] Real PostgreSQL database
 [ ] Real Redis
 [ ] JWT secret
 [ ] S3 private image storage

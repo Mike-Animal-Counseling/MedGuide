@@ -9,7 +9,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.core.config import Environment, Settings
 from app.core.dependencies import get_db_session
 from app.db.base import Base
-from app.db.session import create_database_engine, create_session_factory
+from app.db.session import (
+    create_database_engine,
+    create_session_factory,
+    database_connection_settings,
+)
 from app.repositories.base import BaseRepository
 from app.services.readiness import DatabaseHealthChecker
 
@@ -62,3 +66,30 @@ def test_database_session_dependency_uses_application_session_factory(
 
     assert response.status_code == 200
     assert response.json() == {"is_async_session": True}
+
+
+def test_database_connection_settings_convert_asyncpg_sslmode() -> None:
+    settings = Settings(
+        app_env=Environment.TEST,
+        database_url=(
+            "postgresql+asyncpg://user:secret@db.example/neondb"
+            "?sslmode=require&application_name=medguide"
+        ),
+    )
+
+    url, engine_options = database_connection_settings(settings)
+
+    assert url == "postgresql+asyncpg://user:secret@db.example/neondb?application_name=medguide"
+    assert engine_options["connect_args"] == {"ssl": True}
+
+
+def test_database_connection_settings_preserve_sslmode_disable() -> None:
+    settings = Settings(
+        app_env=Environment.TEST,
+        database_url="postgresql+asyncpg://user:secret@db.example/neondb?sslmode=disable",
+    )
+
+    url, engine_options = database_connection_settings(settings)
+
+    assert url == "postgresql+asyncpg://user:secret@db.example/neondb"
+    assert engine_options["connect_args"] == {"ssl": False}
