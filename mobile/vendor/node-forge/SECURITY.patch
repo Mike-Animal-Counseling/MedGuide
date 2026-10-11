@@ -138,6 +138,28 @@
    var result = findPrime(e.data);
    self.postMessage(result);
  });
+--- upstream/lib/prng.js
++++ hardened/lib/prng.js
+@@ -391,8 +391,9 @@
+     if(worker === self) {
+       ctx.seedFile = function(needed, callback) {
+         function listener(e) {
++          if(e.origin && e.origin !== self.location.origin) return;
+           var data = e.data;
+-          if(data.forge && data.forge.prng) {
++          if(data && data.forge && data.forge.prng) {
+             self.removeEventListener('message', listener);
+             callback(data.forge.prng.err, data.forge.prng.bytes);
+           }
+@@ -404,7 +405,7 @@
+       // main thread sends random bytes upon request
+       var listener = function(e) {
+         var data = e.data;
+-        if(data.forge && data.forge.prng) {
++        if(data && data.forge && data.forge.prng && Number.isSafeInteger(data.forge.prng.needed) && data.forge.prng.needed > 0 && data.forge.prng.needed <= 65536) {
+           ctx.seedFile(data.forge.prng.needed, function(err, bytes) {
+             worker.postMessage({forge: {prng: {err: err, bytes: bytes}}});
+           });
 --- upstream/lib/rsa.js
 +++ hardened/lib/rsa.js
 @@ -1172,7 +1172,14 @@
@@ -156,3 +178,13 @@
              var error = new Error(
                'ASN.1 object does not contain a valid RSASSA-PKCS1-v1_5 ' +
                'DigestInfo value.');
+--- upstream/lib/util.js
++++ hardened/lib/util.js
+@@ -2576,6 +2576,7 @@
+   var blobUrl = URL.createObjectURL(new Blob(['(',
+     function() {
+       self.addEventListener('message', function(e) {
++        if(e.origin && e.origin !== self.location.origin) return;
+         // run worker for 4 ms
+         var st = Date.now();
+         var et = st + 4;

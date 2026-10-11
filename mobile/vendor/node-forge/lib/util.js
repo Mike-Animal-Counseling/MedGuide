@@ -2576,6 +2576,7 @@ util.estimateCores = function(options, callback) {
   var blobUrl = URL.createObjectURL(new Blob(['(',
     function() {
       self.addEventListener('message', function(e) {
+        if(e.origin && e.origin !== self.location.origin) return;
         // run worker for 4 ms
         var st = Date.now();
         var et = st + 4;

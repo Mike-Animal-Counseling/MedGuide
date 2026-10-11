@@ -391,8 +391,9 @@ prng.create = function(plugin) {
     if(worker === self) {
       ctx.seedFile = function(needed, callback) {
         function listener(e) {
+          if(e.origin && e.origin !== self.location.origin) return;
           var data = e.data;
-          if(data.forge && data.forge.prng) {
+          if(data && data.forge && data.forge.prng) {
             self.removeEventListener('message', listener);
             callback(data.forge.prng.err, data.forge.prng.bytes);
           }
@@ -404,7 +405,7 @@ prng.create = function(plugin) {
       // main thread sends random bytes upon request
       var listener = function(e) {
         var data = e.data;
-        if(data.forge && data.forge.prng) {
+        if(data && data.forge && data.forge.prng && Number.isSafeInteger(data.forge.prng.needed) && data.forge.prng.needed > 0 && data.forge.prng.needed <= 65536) {
           ctx.seedFile(data.forge.prng.needed, function(err, bytes) {
             worker.postMessage({forge: {prng: {err: err, bytes: bytes}}});
           });
