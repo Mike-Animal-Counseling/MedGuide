@@ -5,3 +5,7 @@
 001e9ac758249d287bc5c067a3eb17723f529501:mobile/vendor/node-forge/lib/pkcs12.js:generic-api-key:1078
 # Upstream README's public synthetic Ed25519 seed example, not an issued credential.
 001e9ac758249d287bc5c067a3eb17723f529501:mobile/vendor/node-forge/README.md:generic-api-key:877
+
+# The same two unchanged upstream false positives in the squash-merged commit.
+428dcafe7cac1bc91a2889b3ab53af880bad8216:mobile/vendor/node-forge/lib/pkcs12.js:generic-api-key:1078
+428dcafe7cac1bc91a2889b3ab53af880bad8216:mobile/vendor/node-forge/README.md:generic-api-key:877
