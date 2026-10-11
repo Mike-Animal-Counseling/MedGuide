@@ -56,3 +56,12 @@ async def test_production_storage_failure_denies_requests() -> None:
 
     response = await middleware.dispatch(request, never_called)
     assert response.status_code == 503
+
+
+def test_api_body_limit_also_bounds_streams_without_content_length(client: TestClient) -> None:
+    response = client.post(
+        "/api/v1/medications",
+        content=iter([b"x" * 32768, b"y" * 32769]),
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 413
