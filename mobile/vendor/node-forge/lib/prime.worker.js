@@ -19,6 +19,10 @@ var BIG_TWO = new BigInteger(null);
 BIG_TWO.fromInt(2);
 
 self.addEventListener('message', function(e) {
+  // Dedicated workers normally receive an empty origin; reject a supplied foreign origin.
+  if(e.origin && e.origin !== self.location.origin) return;
+  if(!e.data || typeof e.data.hex !== 'string' || e.data.hex.length > 2048 || !/^[a-f0-9]+$/i.test(e.data.hex) ||
+    !Number.isSafeInteger(e.data.workLoad) || e.data.workLoad < 1 || e.data.workLoad > 1000) return;
   var result = findPrime(e.data);
   self.postMessage(result);
 });

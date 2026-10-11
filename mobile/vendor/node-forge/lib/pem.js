@@ -95,13 +95,13 @@ pem.encode = function(msg, options) {
 pem.decode = function(str) {
   var rval = [];
 
-  // split string into PEM messages (be lenient w/EOF on BEGIN line)
-  var rMessage = /\s*-----BEGIN ([A-Z0-9- ]+)-----\r?\n?([\x21-\x7e\s]+?(?:\r?\n\r?\n))?([:A-Za-z0-9+\/=\s]+?)-----END \1-----/g;
-  var rHeader = /([\x21-\x7e]+):\s*([\x21-\x7e\s^:]+)/;
+  // Parse boundaries with linear scans instead of backtracking expressions.
+  var messages = readPemMessages(str);
+  var messageIndex = 0;
   var rCRLF = /\r?\n/;
   var match;
   while(true) {
-    match = rMessage.exec(str);
+    match = messages[messageIndex++];
     if(!match) {
       break;
     }
@@ -133,7 +133,7 @@ pem.decode = function(str) {
     var li = 0;
     while(match && li < lines.length) {
       // get line, trim any rhs whitespace
-      var line = lines[li].replace(/\s+$/, '');
+      var line = lines[li].trimEnd();
 
       // RFC2822 unfold any following folded lines
       for(var nl = li + 1; nl < lines.length; ++nl) {
@@ -146,7 +146,11 @@ pem.decode = function(str) {
       }
 
       // parse header
-      match = line.match(rHeader);
+      var colon = line.indexOf(':');
+      if(colon < 1 || colon > 128 || !/^[\x21-\x7e]{1,128}$/.test(line.slice(0, colon))) {
+        throw new Error('Invalid PEM header');
+      }
+      match = [line, line.slice(0, colon), line.slice(colon + 1).trimStart()];
       if(match) {
         var header = {name: match[1], values: []};
         var values = match[2].split(',');
@@ -233,5 +237,36 @@ function foldHeader(header) {
 }
 
 function ltrim(str) {
-  return str.replace(/^\s+/, '');
+  return str.trimStart();
+}
+
+function readPemMessages(str) {
+  if(typeof str !== 'string' || str.length > 1048576) throw new RangeError('PEM input exceeds safe limits');
+  var messages = [], position = 0;
+  while(position < str.length) {
+    var begin = str.indexOf('-----BEGIN ', position);
+    if(begin === -1) break;
+    var typeEnd = str.indexOf('-----', begin + 11);
+    if(typeEnd === -1 || typeEnd - begin > 100) throw new Error('Invalid PEM boundary');
+    var type = str.slice(begin + 11, typeEnd);
+    if(!/^[A-Z0-9][A-Z0-9 -]{0,79}$/.test(type)) throw new Error('Invalid PEM type');
+    var bodyStart = typeEnd + 5, endMarker = '-----END ' + type + '-----';
+    var end = str.indexOf(endMarker, bodyStart);
+    if(end === -1) throw new Error('Missing PEM end boundary');
+    var block = str.slice(bodyStart, end).trim();
+    var lines = block.split('\n').map(function(line) { return line.endsWith('\r') ? line.slice(0, -1) : line; });
+    for(var i = 0; i < lines.length; ++i) if(lines[i].length > 16384) throw new RangeError('PEM line exceeds safe limits');
+    var headerLines = [], bodyLines = lines;
+    if(lines.length && lines[0].indexOf(':') !== -1) {
+      var separator = lines.indexOf('');
+      if(separator < 1 || separator > 128) throw new Error('Invalid PEM header separator');
+      headerLines = lines.slice(0, separator); bodyLines = lines.slice(separator + 1);
+    }
+    var body = bodyLines.join('\n');
+    if(!/^[A-Za-z0-9+/= \t\r\n]*$/.test(body)) throw new Error('Invalid PEM body');
+    messages.push([str.slice(begin, end + endMarker.length), type, headerLines.length ? headerLines.join('\n') : null, body]);
+    if(messages.length > 100) throw new RangeError('Too many PEM messages');
+    position = end + endMarker.length;
+  }
+  return messages;
 }

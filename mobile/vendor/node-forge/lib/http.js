@@ -474,7 +474,7 @@ http.createClient = function(options) {
     secure: (url.protocol === 'https:'),
     // cookie jar (key'd off of name and then path, there is only 1 domain
     // and one setting for secure per client so name+path is unique)
-    cookies: {},
+    cookies: Object.create(null),
     // default to flash storage of cookies
     persistCookies: (typeof(options.persistCookies) === 'undefined') ?
       true : options.persistCookies
@@ -654,6 +654,8 @@ http.createClient = function(options) {
    *   created: creation time, in UTC seconds, of the cookie.
    */
   client.setCookie = function(cookie) {
+    if(typeof cookie.name !== 'string' || cookie.name === '__proto__' || cookie.name === 'constructor' || cookie.name === 'prototype' ||
+      (cookie.path !== undefined && (typeof cookie.path !== 'string' || cookie.path === '__proto__' || cookie.path === 'constructor' || cookie.path === 'prototype'))) return false;
     var rval;
     if(typeof(cookie.name) !== 'undefined') {
       if(cookie.value === null || typeof(cookie.value) === 'undefined' ||
@@ -691,7 +693,7 @@ http.createClient = function(options) {
 
         // add new cookie
         if(!(cookie.name in client.cookies)) {
-          client.cookies[cookie.name] = {};
+          client.cookies[cookie.name] = Object.create(null);
         }
         client.cookies[cookie.name][cookie.path] = cookie;
         rval = true;
@@ -779,7 +781,7 @@ http.createClient = function(options) {
    * Clears all cookies stored in this client.
    */
   client.clearCookies = function() {
-    client.cookies = {};
+    client.cookies = Object.create(null);
     _clearCookies(client);
   };
 
@@ -798,7 +800,7 @@ http.createClient = function(options) {
  * @return the trimmed string.
  */
 var _trimString = function(str) {
-  return str.replace(/^\s*/, '').replace(/\s*$/, '');
+  return str.trim();
 };
 
 /**

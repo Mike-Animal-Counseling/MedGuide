@@ -1,3 +1,143 @@
+--- upstream/lib/http.js
++++ hardened/lib/http.js
+@@ -474,7 +474,7 @@
+     secure: (url.protocol === 'https:'),
+     // cookie jar (key'd off of name and then path, there is only 1 domain
+     // and one setting for secure per client so name+path is unique)
+-    cookies: {},
++    cookies: Object.create(null),
+     // default to flash storage of cookies
+     persistCookies: (typeof(options.persistCookies) === 'undefined') ?
+       true : options.persistCookies
+@@ -654,6 +654,8 @@
+    *   created: creation time, in UTC seconds, of the cookie.
+    */
+   client.setCookie = function(cookie) {
++    if(typeof cookie.name !== 'string' || cookie.name === '__proto__' || cookie.name === 'constructor' || cookie.name === 'prototype' ||
++      (cookie.path !== undefined && (typeof cookie.path !== 'string' || cookie.path === '__proto__' || cookie.path === 'constructor' || cookie.path === 'prototype'))) return false;
+     var rval;
+     if(typeof(cookie.name) !== 'undefined') {
+       if(cookie.value === null || typeof(cookie.value) === 'undefined' ||
+@@ -691,7 +693,7 @@
+ 
+         // add new cookie
+         if(!(cookie.name in client.cookies)) {
+-          client.cookies[cookie.name] = {};
++          client.cookies[cookie.name] = Object.create(null);
+         }
+         client.cookies[cookie.name][cookie.path] = cookie;
+         rval = true;
+@@ -779,7 +781,7 @@
+    * Clears all cookies stored in this client.
+    */
+   client.clearCookies = function() {
+-    client.cookies = {};
++    client.cookies = Object.create(null);
+     _clearCookies(client);
+   };
+ 
+@@ -798,7 +800,7 @@
+  * @return the trimmed string.
+  */
+ var _trimString = function(str) {
+-  return str.replace(/^\s*/, '').replace(/\s*$/, '');
++  return str.trim();
+ };
+ 
+ /**
+--- upstream/lib/pem.js
++++ hardened/lib/pem.js
+@@ -95,13 +95,13 @@
+ pem.decode = function(str) {
+   var rval = [];
+ 
+-  // split string into PEM messages (be lenient w/EOF on BEGIN line)
+-  var rMessage = /\s*-----BEGIN ([A-Z0-9- ]+)-----\r?\n?([\x21-\x7e\s]+?(?:\r?\n\r?\n))?([:A-Za-z0-9+\/=\s]+?)-----END \1-----/g;
+-  var rHeader = /([\x21-\x7e]+):\s*([\x21-\x7e\s^:]+)/;
++  // Parse boundaries with linear scans instead of backtracking expressions.
++  var messages = readPemMessages(str);
++  var messageIndex = 0;
+   var rCRLF = /\r?\n/;
+   var match;
+   while(true) {
+-    match = rMessage.exec(str);
++    match = messages[messageIndex++];
+     if(!match) {
+       break;
+     }
+@@ -133,7 +133,7 @@
+     var li = 0;
+     while(match && li < lines.length) {
+       // get line, trim any rhs whitespace
+-      var line = lines[li].replace(/\s+$/, '');
++      var line = lines[li].trimEnd();
+ 
+       // RFC2822 unfold any following folded lines
+       for(var nl = li + 1; nl < lines.length; ++nl) {
+@@ -146,7 +146,11 @@
+       }
+ 
+       // parse header
+-      match = line.match(rHeader);
++      var colon = line.indexOf(':');
++      if(colon < 1 || colon > 128 || !/^[\x21-\x7e]{1,128}$/.test(line.slice(0, colon))) {
++        throw new Error('Invalid PEM header');
++      }
++      match = [line, line.slice(0, colon), line.slice(colon + 1).trimStart()];
+       if(match) {
+         var header = {name: match[1], values: []};
+         var values = match[2].split(',');
+@@ -233,5 +237,36 @@
+ }
+ 
+ function ltrim(str) {
+-  return str.replace(/^\s+/, '');
++  return str.trimStart();
+ }
++
++function readPemMessages(str) {
++  if(typeof str !== 'string' || str.length > 1048576) throw new RangeError('PEM input exceeds safe limits');
++  var messages = [], position = 0;
++  while(position < str.length) {
++    var begin = str.indexOf('-----BEGIN ', position);
++    if(begin === -1) break;
++    var typeEnd = str.indexOf('-----', begin + 11);
++    if(typeEnd === -1 || typeEnd - begin > 100) throw new Error('Invalid PEM boundary');
++    var type = str.slice(begin + 11, typeEnd);
++    if(!/^[A-Z0-9][A-Z0-9 -]{0,79}$/.test(type)) throw new Error('Invalid PEM type');
++    var bodyStart = typeEnd + 5, endMarker = '-----END ' + type + '-----';
++    var end = str.indexOf(endMarker, bodyStart);
++    if(end === -1) throw new Error('Missing PEM end boundary');
++    var block = str.slice(bodyStart, end).trim();
++    var lines = block.split('\n').map(function(line) { return line.endsWith('\r') ? line.slice(0, -1) : line; });
++    for(var i = 0; i < lines.length; ++i) if(lines[i].length > 16384) throw new RangeError('PEM line exceeds safe limits');
++    var headerLines = [], bodyLines = lines;
++    if(lines.length && lines[0].indexOf(':') !== -1) {
++      var separator = lines.indexOf('');
++      if(separator < 1 || separator > 128) throw new Error('Invalid PEM header separator');
++      headerLines = lines.slice(0, separator); bodyLines = lines.slice(separator + 1);
++    }
++    var body = bodyLines.join('\n');
++    if(!/^[A-Za-z0-9+/= \t\r\n]*$/.test(body)) throw new Error('Invalid PEM body');
++    messages.push([str.slice(begin, end + endMarker.length), type, headerLines.length ? headerLines.join('\n') : null, body]);
++    if(messages.length > 100) throw new RangeError('Too many PEM messages');
++    position = end + endMarker.length;
++  }
++  return messages;
++}
+--- upstream/lib/prime.worker.js
++++ hardened/lib/prime.worker.js
+@@ -19,6 +19,10 @@
+ BIG_TWO.fromInt(2);
+ 
+ self.addEventListener('message', function(e) {
++  // Dedicated workers normally receive an empty origin; reject a supplied foreign origin.
++  if(e.origin && e.origin !== self.location.origin) return;
++  if(!e.data || typeof e.data.hex !== 'string' || e.data.hex.length > 2048 || !/^[a-f0-9]+$/i.test(e.data.hex) ||
++    !Number.isSafeInteger(e.data.workLoad) || e.data.workLoad < 1 || e.data.workLoad > 1000) return;
+   var result = findPrime(e.data);
+   self.postMessage(result);
+ });
 --- upstream/lib/rsa.js
 +++ hardened/lib/rsa.js
 @@ -1172,7 +1172,14 @@
