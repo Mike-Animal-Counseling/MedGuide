@@ -1,2 +1,7 @@
 # Historical documentation placeholder, not an issued provider credential.
 0cce606230021ea3d96a3ffb6af7846415e51389:docs/PROVIDER_SETUP_GUIDE.md:generic-api-key:187
+
+# Integrity-verified upstream node-forge source: function alias, not key material.
+001e9ac758249d287bc5c067a3eb17723f529501:mobile/vendor/node-forge/lib/pkcs12.js:generic-api-key:1078
+# Upstream README's public synthetic Ed25519 seed example, not an issued credential.
+001e9ac758249d287bc5c067a3eb17723f529501:mobile/vendor/node-forge/README.md:generic-api-key:877
