@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator
 from typing import Annotated, Protocol, cast
 from uuid import UUID
 
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -246,3 +246,20 @@ def require_roles(*allowed_roles: UserRole) -> object:
         return user
 
     return role_dependency
+
+
+async def enforce_provider_budget(
+    request: Request,
+    user: Annotated[User, Depends(get_current_user)],
+) -> None:
+    """Charge provider budgets only after verifying an actual active account."""
+    try:
+        allowed = request.state.take_budget
+        if not await allowed(request, "provider-user:" + str(user.id), 30, 3600):
+            raise HTTPException(status_code=429, detail="Provider request limit reached")
+        if not await allowed(request, "provider-global", 1000, 86400):
+            raise HTTPException(status_code=429, detail="Provider daily limit reached")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Provider budget unavailable") from exc

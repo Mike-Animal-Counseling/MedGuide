@@ -141,6 +141,8 @@ class Settings(BaseSettings):
         configured_urls = (self.database_url, self.redis_url)
         if any(value in url for value in unsafe_values for url in configured_urls):
             raise ValueError("Production database and Redis URLs must use managed credentials")
+        if not self.redis_url.startswith("rediss://"):
+            raise ValueError("Production Redis must use TLS")
         jwt_secret = self.jwt_secret.get_secret_value() if self.jwt_secret is not None else ""
         unsafe_jwt_markers = ("change-me", "replace-with", "example")
         if len(jwt_secret) < 32 or any(marker in jwt_secret for marker in unsafe_jwt_markers):

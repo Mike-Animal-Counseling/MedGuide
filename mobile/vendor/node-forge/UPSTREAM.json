@@ -1,0 +1,7 @@
+{
+  "package": "node-forge",
+  "upstreamVersion": "1.4.0",
+  "source": "https://registry.npmjs.org/node-forge/-/node-forge-1.4.0.tgz",
+  "integrity": "sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==",
+  "fork": "@medguide/node-forge-hardened"
+}

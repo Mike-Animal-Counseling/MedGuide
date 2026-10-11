@@ -80,7 +80,7 @@ def upgrade() -> None:
         unique=False,
     )
     op.create_index("ix_medications_pill_image_id", "medications", ["pill_image_id"], unique=False)
-    legacy_reference_count = (
+    legacy_reference_count: int = (
         op.get_bind()
         .execute(
             sa.text(

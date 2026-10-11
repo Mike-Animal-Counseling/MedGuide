@@ -2,6 +2,7 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.engine import ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ai_verification import AIVerificationEvent
@@ -76,7 +77,9 @@ class PrivacyService:
         await self.caregiver_service.revoke(user, link_id)
 
     async def _list(self, model: type[Any], user_id: UUID) -> list[Any]:
-        result = await self.session.scalars(select(model).where(model.user_id == user_id))
+        result: ScalarResult[Any] = await self.session.scalars(
+            select(model).where(model.user_id == user_id)
+        )
         return list(result)
 
     async def _caregiver_links(self, user_id: UUID) -> list[CaregiverLink]:
