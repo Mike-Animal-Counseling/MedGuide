@@ -2,12 +2,6 @@ name: Docs CI
 
 on:
   pull_request:
-    paths:
-      - ".env.example"
-      - "docker-compose.yml"
-      - "docs/**"
-      - "scripts/check_docs_config.py"
-      - ".github/workflows/docs-ci.yml"
   push:
     branches: [main]
     paths:
