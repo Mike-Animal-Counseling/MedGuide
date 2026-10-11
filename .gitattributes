@@ -1,0 +1,4 @@
+# Exact upstream patch context and imported license/source formatting are retained.
+mobile/vendor/**/SECURITY.patch -whitespace
+mobile/vendor/braces/lib/stringify.js whitespace=-blank-at-eof
+mobile/vendor/node-forge/LICENSE whitespace=-blank-at-eof

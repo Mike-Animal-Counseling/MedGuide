@@ -1,0 +1,19 @@
+{
+  "name": "@medguide/sprintf-js-hardened",
+  "version": "1.1.3-medguide.1",
+  "description": "JavaScript sprintf implementation",
+  "author": "Alexandru M\u0103r\u0103\u0219teanu <hello@alexei.ro>",
+  "main": "src/sprintf.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexei/sprintf.js.git"
+  },
+  "license": "BSD-3-Clause",
+  "readmeFilename": "README.md",
+  "overrides": {
+    "graceful-fs": "^4.2.11"
+  },
+  "files": [
+    "src"
+  ]
+}

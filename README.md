@@ -122,3 +122,7 @@ Deployment assets, migration commands, worker commands, Render/Railway notes, an
 production guidance are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 The current release readiness status, manual tasks, required credentials, and deployment blockers
 are tracked in [docs/PRODUCTION_READINESS_CHECKLIST.md](docs/PRODUCTION_READINESS_CHECKLIST.md).
+
+## Security and deployment
+
+Read the [security policy](SECURITY.md) and [production requirements](docs/PRODUCTION_SECURITY.md) before deployment.

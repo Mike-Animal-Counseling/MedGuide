@@ -13,6 +13,7 @@ from app.core.logging import configure_logging
 from app.core.middleware import RequestIdMiddleware
 from app.core.observability import InMemoryMetricsService, configure_sentry
 from app.core.openapi import configure_openapi
+from app.core.rate_limit import RateLimitMiddleware
 from app.db.session import create_database_engine, create_session_factory
 from app.services.ocr import create_ocr_provider
 from app.services.readiness import DatabaseHealthChecker, RedisHealthChecker
@@ -28,7 +29,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         engine = create_database_engine(app_settings)
-        redis = Redis.from_url(app_settings.redis_url, decode_responses=True)
+        redis = Redis.from_url(
+            app_settings.redis_url,
+            decode_responses=True,
+            socket_connect_timeout=3,
+            socket_timeout=3,
+            max_connections=100,
+        )
         app.state.settings = app_settings
         app.state.engine = engine
         app.state.session_factory = create_session_factory(engine)
@@ -62,6 +69,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(RateLimitMiddleware, settings=app_settings)
     app.add_middleware(RequestIdMiddleware)
     register_error_handlers(app)
     app.include_router(operations_router)

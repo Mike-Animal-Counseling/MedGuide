@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Response, status
 
-from app.core.dependencies import get_current_user, get_upload_service
+from app.core.dependencies import enforce_provider_budget, get_current_user, get_upload_service
 from app.models.user import User
 from app.schemas.upload import SignedReadResponse, SignedUploadRequest, SignedUploadResponse
 from app.services.upload import UploadService
@@ -12,7 +12,10 @@ router = APIRouter(prefix="/uploads", tags=["uploads"])
 
 
 @router.post(
-    "/signed-url", response_model=SignedUploadResponse, status_code=status.HTTP_201_CREATED
+    "/signed-url",
+    response_model=SignedUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(enforce_provider_budget)],
 )
 async def create_signed_upload_url(
     request: SignedUploadRequest,

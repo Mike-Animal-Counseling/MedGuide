@@ -55,7 +55,7 @@ class ScheduleRepository(BaseRepository[MedicationSchedule]):
             ),
         )
 
-    def _active_query(self, user_id: UUID) -> Select[tuple[MedicationSchedule]]:
+    def _active_query(self, user_id: UUID) -> Select[MedicationSchedule]:
         return (
             select(MedicationSchedule)
             .join(Medication, Medication.id == MedicationSchedule.medication_id)

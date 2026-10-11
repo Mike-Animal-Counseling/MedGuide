@@ -1,0 +1,20 @@
+--- upstream/src/sprintf.js
++++ hardened/src/sprintf.js
+@@ -37,6 +37,9 @@
+                 output += parse_tree[i]
+             }
+             else if (typeof parse_tree[i] === 'object') {
++                if (Number(parse_tree[i].width || 0) > 10000 || Number(parse_tree[i].precision || 0) > 1000) {
++                    throw new RangeError('[sprintf] width or precision exceeds safe limits')
++                }
+                 ph = parse_tree[i] // convenience purposes only
+                 if (ph.keys) { // keyword argument
+                     arg = argv[cursor]
+@@ -142,6 +145,7 @@
+     var sprintf_cache = Object.create(null)
+ 
+     function sprintf_parse(fmt) {
++        if (typeof fmt !== 'string' || fmt.length > 10000) throw new RangeError('[sprintf] format exceeds safe limits')
+         if (sprintf_cache[fmt]) {
+             return sprintf_cache[fmt]
+         }
