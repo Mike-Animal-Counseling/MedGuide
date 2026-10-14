@@ -42,7 +42,7 @@
     "jest": "^29.7.0",
     "jest-expo": "~57.0.6",
     "react-test-renderer": "19.2.3",
-    "typescript": "~6.0.3",
+    "typescript": "~7.0.2",
     "braces": "file:vendor/braces",
     "node-forge": "file:vendor/node-forge",
     "sprintf-js": "file:vendor/sprintf-js"
