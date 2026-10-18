@@ -31,11 +31,11 @@ describe('dose voice prompt', () => {
     expect(text).not.toMatch(/you should take|recommended dose/i);
   });
 
-  it('speaks the exact safe text supplied to the component', () => {
+  it('speaks the exact safe text supplied to the component', async () => {
     const text = `Take after breakfast. ${MEDICATION_SAFETY_DISCLAIMER}`;
-    renderWithAccessibility(<VoicePrompt text={text} buttonTitle="Repeat instruction" />);
+    await renderWithAccessibility(<VoicePrompt text={text} buttonTitle="Repeat instruction" />);
 
-    fireEvent.press(screen.getByRole('button', { name: 'Repeat instruction' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Repeat instruction' }));
 
     expect(mockSpeak).toHaveBeenCalledWith(text, { language: 'en-US', rate: 0.9 });
   });

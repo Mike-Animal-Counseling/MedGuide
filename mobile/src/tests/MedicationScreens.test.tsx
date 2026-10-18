@@ -44,22 +44,22 @@ describe('medication mobile screens', () => {
   });
 
   it('renders medication list and opens selected medication', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <MedicationListScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />,
     );
 
     expect(await screen.findByText('ExampleMed')).toBeOnTheScreen();
     expect(screen.getByText('10 mg')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByLabelText('Open ExampleMed'));
+    await fireEvent.press(screen.getByLabelText('Open ExampleMed'));
     expect(mockNavigate).toHaveBeenCalledWith('MedicationDetail', { medicationId: 'med-1' });
 
-    fireEvent.press(screen.getByRole('button', { name: 'Add medication' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add medication' }));
     expect(mockNavigate).toHaveBeenCalledWith('AddMedication');
   });
 
   it('renders medication details and exposes edit flow', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <MedicationDetailScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{ params: { medicationId: 'med-1' } } as never}
@@ -69,7 +69,7 @@ describe('medication mobile screens', () => {
     expect(await screen.findByText('ExampleMed')).toBeOnTheScreen();
     expect(screen.getByText('Take with saved label instructions.')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByRole('button', { name: 'Edit ExampleMed' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Edit ExampleMed' }));
     expect(mockNavigate).toHaveBeenCalledWith('ManualMedicationForm', {
       medicationId: 'med-1',
       extracted: {
@@ -83,7 +83,7 @@ describe('medication mobile screens', () => {
   it('updates an existing medication through the confirmed form', async () => {
     (apiRequest as jest.Mock).mockResolvedValueOnce({ id: 'med-1' });
 
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <ManualMedicationFormScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{
@@ -99,8 +99,8 @@ describe('medication mobile screens', () => {
       />,
     );
 
-    fireEvent.changeText(screen.getByLabelText('Medication instructions'), 'Updated confirmed text.');
-    fireEvent.press(screen.getByRole('button', { name: 'Update medication' }));
+    await fireEvent.changeText(screen.getByLabelText('Medication instructions'), 'Updated confirmed text.');
+    await fireEvent.press(screen.getByRole('button', { name: 'Update medication' }));
 
     await waitFor(() => {
       expect(apiRequest).toHaveBeenCalledWith('/api/v1/medications/med-1', {
@@ -115,15 +115,15 @@ describe('medication mobile screens', () => {
     });
   });
 
-  it('navigates from add medication choice to manual entry or scan label', () => {
-    renderWithAccessibility(
+  it('navigates from add medication choice to manual entry or scan label', async () => {
+    await renderWithAccessibility(
       <AddMedicationScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />,
     );
 
-    fireEvent.press(screen.getByRole('button', { name: 'Add medication manually' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add medication manually' }));
     expect(mockNavigate).toHaveBeenCalledWith('ManualMedicationForm');
 
-    fireEvent.press(screen.getByRole('button', { name: 'Scan medication label' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Scan medication label' }));
     expect(mockNavigate).toHaveBeenCalledWith('ScanLabel');
   });
 });

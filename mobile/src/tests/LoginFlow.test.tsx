@@ -48,15 +48,15 @@ describe('mobile login flow', () => {
   });
 
   it('logs in, stores tokens, and fetches /auth/me', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <AuthProvider>
         <LoginScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />
       </AuthProvider>,
     );
 
-    fireEvent.changeText(screen.getByLabelText('Email address'), 'pat@example.com');
-    fireEvent.changeText(screen.getByLabelText('Password'), 'strong-password');
-    fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+    await fireEvent.changeText(screen.getByLabelText('Email address'), 'pat@example.com');
+    await fireEvent.changeText(screen.getByLabelText('Password'), 'strong-password');
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
 
     await waitFor(() => {
       expect(mockApiRequest).toHaveBeenCalledWith('/api/v1/auth/login', {

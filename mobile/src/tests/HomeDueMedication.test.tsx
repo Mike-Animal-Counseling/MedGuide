@@ -40,8 +40,8 @@ jest.mock('../hooks/useMedications', () => ({
 }));
 
 describe('HomeScreen daily workflow', () => {
-  it('displays the current due medication and main action', () => {
-    renderWithAccessibility(<HomeScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />);
+  it('displays the current due medication and main action', async () => {
+    await renderWithAccessibility(<HomeScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />);
 
     expect(screen.getByText('Current due medication')).toBeOnTheScreen();
     expect(screen.getByText('Atorvastatin is due now.')).toBeOnTheScreen();

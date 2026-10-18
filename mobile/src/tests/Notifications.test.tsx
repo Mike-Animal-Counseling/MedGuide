@@ -119,8 +119,8 @@ describe('mobile notifications', () => {
   it('handles permission denied accessibly', async () => {
     mockRequestPermissionsAsync.mockResolvedValue({ granted: false });
 
-    renderWithAccessibility(<NotificationRegistrationCard />);
-    fireEvent.press(screen.getByRole('button', { name: 'Enable reminder notifications' }));
+    await renderWithAccessibility(<NotificationRegistrationCard />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Enable reminder notifications' }));
 
     expect(
       await screen.findByText(
@@ -130,13 +130,13 @@ describe('mobile notifications', () => {
   });
 
   it('removes the registered backend device on logout where possible', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <AuthProvider>
         <LogoutButton />
       </AuthProvider>,
     );
 
-    fireEvent.press(await screen.findByRole('button', { name: 'Sign out for test' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Sign out for test' }));
 
     await waitFor(() => {
       expect(apiRequest).toHaveBeenCalledWith('/api/v1/devices/device-1', { method: 'DELETE' });

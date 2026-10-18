@@ -27,15 +27,15 @@ jest.mock('expo-camera', () => ({
 }));
 
 describe('critical screen accessibility labels', () => {
-  it('labels patient home actions', () => {
-    renderWithAccessibility(<HomeScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />);
+  it('labels patient home actions', async () => {
+    await renderWithAccessibility(<HomeScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />);
 
     expect(screen.getByRole('button', { name: 'Start medication check' })).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Scan medication label' })).toBeOnTheScreen();
   });
 
-  it('labels scan label controls', () => {
-    renderWithAccessibility(<ScanLabelScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />);
+  it('labels scan label controls', async () => {
+    await renderWithAccessibility(<ScanLabelScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />);
 
     expect(screen.getByRole('button', { name: 'Allow camera' })).toBeOnTheScreen();
   });

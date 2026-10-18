@@ -140,12 +140,17 @@ environment.
 
 ```bash
 cd mobile
-npm install
+npm ci
+npx expo install --check
+npm run test:security
 npm run lint
 npm run typecheck
 npm test
 npm run test:coverage
 ```
+
+See [the mobile toolchain guide](../mobile/TOOLCHAIN.md) for the supported Expo and TypeScript
+setup. Await rendering and fire events with React Native Testing Library 14.
 
 React Native Testing Library tests should query the interface as a user or assistive technology
 would. Keep snapshots focused; prefer behavioral and accessibility assertions.
@@ -211,7 +216,8 @@ GitHub Actions are split by responsibility:
 
 - `backend-ci.yml` runs backend install, lint, format check, type check, pytest coverage, and
   Alembic migration graph checks.
-- `mobile-ci.yml` runs mobile install, TypeScript, lint, and Jest coverage checks.
+- `mobile-ci.yml` runs mobile install, security backport regressions, online Expo compatibility,
+  TypeScript, lint, Jest coverage, and production native bundle checks.
 - `security-ci.yml` runs secret scanning, committed `.env` rejection, Python dependency auditing,
   and npm dependency auditing.
 - `docs-ci.yml` runs documentation/configuration checks and validates Docker Compose config.

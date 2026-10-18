@@ -46,11 +46,11 @@ describe('TodayScheduleScreen dose actions', () => {
   });
 
   it('confirms a dose through the backend API', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <TodayScheduleScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />,
     );
 
-    fireEvent.press(await screen.findByRole('button', { name: 'Confirm Confirmed Medication taken' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Confirm Confirmed Medication taken' }));
 
     await waitFor(() => {
       expect(mockApiRequest).toHaveBeenCalledWith(
@@ -61,11 +61,11 @@ describe('TodayScheduleScreen dose actions', () => {
   });
 
   it('skips a dose through the backend API', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <TodayScheduleScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />,
     );
 
-    fireEvent.press(await screen.findByRole('button', { name: 'Skip Confirmed Medication dose' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Skip Confirmed Medication dose' }));
 
     await waitFor(() => {
       expect(mockApiRequest).toHaveBeenCalledWith(
@@ -76,11 +76,11 @@ describe('TodayScheduleScreen dose actions', () => {
   });
 
   it('marks a dose as needs help through the backend API', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <TodayScheduleScreen navigation={{ navigate: jest.fn() } as never} route={{} as never} />,
     );
 
-    fireEvent.press(await screen.findByRole('button', { name: 'Need help with Confirmed Medication' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Need help with Confirmed Medication' }));
 
     await waitFor(() => {
       expect(mockApiRequest).toHaveBeenCalledWith(

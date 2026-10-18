@@ -17,16 +17,16 @@ describe('ManualMedicationFormScreen', () => {
   });
 
   it('creates a medication from confirmed manual entry', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <ManualMedicationFormScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{ params: undefined } as never}
       />,
     );
 
-    fireEvent.changeText(screen.getByLabelText('Medication name'), 'Manual Medication');
-    fireEvent.changeText(screen.getByLabelText('Medication instructions'), 'Follow the saved label.');
-    fireEvent.press(screen.getByRole('button', { name: 'Save medication' }));
+    await fireEvent.changeText(screen.getByLabelText('Medication name'), 'Manual Medication');
+    await fireEvent.changeText(screen.getByLabelText('Medication instructions'), 'Follow the saved label.');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save medication' }));
 
     await waitFor(() => {
       expect(mockApiRequest).toHaveBeenCalledWith('/api/v1/medications', {
