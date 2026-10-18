@@ -48,7 +48,7 @@
     "node-forge": "file:vendor/node-forge",
     "sprintf-js": "file:vendor/sprintf-js",
     "test-renderer": "^1.0.0",
-    "typescript": "~6.0.3",
+    "typescript": "~7.0.2",
     "typescript-7": "npm:typescript@~7.0.2"
   },
   "jest": {
