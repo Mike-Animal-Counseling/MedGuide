@@ -15,7 +15,7 @@ jest.mock('../auth/AuthContext', () => ({
 
 describe('RootNavigator', () => {
   it('renders the unauthenticated navigation flow', async () => {
-    renderWithNavigation();
+    await renderWithNavigation();
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Sign in' })).toBeOnTheScreen();

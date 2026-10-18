@@ -19,8 +19,8 @@ describe('ErrorBoundary', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders children when no error occurs', () => {
-    render(
+  it('renders children when no error occurs', async () => {
+    await render(
       <ErrorBoundary>
         <Text>Safe content</Text>
       </ErrorBoundary>,
@@ -29,8 +29,8 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Safe content')).toBeOnTheScreen();
   });
 
-  it('shows safe fallback UI and reports sanitized boundary context', () => {
-    render(
+  it('shows safe fallback UI and reports sanitized boundary context', async () => {
+    await render(
       <ErrorBoundary>
         <ThrowingChild />
       </ErrorBoundary>,

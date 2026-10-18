@@ -4,10 +4,10 @@ import { AccessibleButton } from '../components/AccessibleButton';
 import { renderWithAccessibility } from './test-utils';
 
 describe('AccessibleButton', () => {
-  it('renders an accessible button and handles presses', () => {
+  it('renders an accessible button and handles presses', async () => {
     const onPress = jest.fn();
 
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <AccessibleButton
         title="Continue"
         onPress={onPress}
@@ -16,7 +16,7 @@ describe('AccessibleButton', () => {
       />,
     );
 
-    fireEvent.press(screen.getByRole('button', { name: 'Continue medication setup' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue medication setup' }));
 
     expect(onPress).toHaveBeenCalledTimes(1);
   });

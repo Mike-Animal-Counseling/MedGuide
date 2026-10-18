@@ -76,11 +76,11 @@ describe('caregiver mobile dashboard', () => {
   });
 
   it('shows linked patients and navigates to patient detail', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <CaregiverHomeScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />,
     );
 
-    fireEvent.press(await screen.findByLabelText('Open patient patient@example.com'));
+    await fireEvent.press(await screen.findByLabelText('Open patient patient@example.com'));
 
     expect(mockNavigate).toHaveBeenCalledWith('PatientDetail', {
       patientId: 'patient-1',
@@ -91,7 +91,7 @@ describe('caregiver mobile dashboard', () => {
   });
 
   it("renders today's dose status and permission-based actions", async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <PatientDetailScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{ params: { patientId: 'patient-1', permissionLevel: 'FULL_ACCESS' } } as never}
@@ -104,7 +104,7 @@ describe('caregiver mobile dashboard', () => {
   });
 
   it('hides management UI for view-only caregiver links', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <PatientDetailScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{ params: { patientId: 'patient-1', permissionLevel: 'VIEW_ONLY' } } as never}
@@ -120,7 +120,7 @@ describe('caregiver mobile dashboard', () => {
   it('displays safe error when caregiver access is denied or changed', async () => {
     (apiRequest as jest.Mock).mockRejectedValueOnce(new Error('forbidden'));
 
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <PatientDetailScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{ params: { patientId: 'unlinked-patient', permissionLevel: 'FULL_ACCESS' } } as never}
@@ -132,15 +132,15 @@ describe('caregiver mobile dashboard', () => {
   });
 
   it('accepts caregiver invitations through the backend', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <CaregiverInviteAcceptScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{} as never}
       />,
     );
 
-    fireEvent.changeText(screen.getByLabelText('Caregiver invite token'), 'a'.repeat(32));
-    fireEvent.press(screen.getByRole('button', { name: 'Accept caregiver invite' }));
+    await fireEvent.changeText(screen.getByLabelText('Caregiver invite token'), 'a'.repeat(32));
+    await fireEvent.press(screen.getByRole('button', { name: 'Accept caregiver invite' }));
 
     await waitFor(() => {
       expect(apiRequest).toHaveBeenCalledWith('/api/v1/caregivers/accept', {
@@ -151,7 +151,7 @@ describe('caregiver mobile dashboard', () => {
   });
 
   it('shows verification review boundary for FULL_ACCESS users', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <CaregiverVerificationReviewScreen
         navigation={{ navigate: mockNavigate } as never}
         route={{ params: { patientId: 'patient-1', permissionLevel: 'FULL_ACCESS' } } as never}

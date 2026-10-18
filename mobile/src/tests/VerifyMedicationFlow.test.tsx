@@ -115,7 +115,7 @@ describe('VerifyMedicationScreen', () => {
 
     expect(await screen.findByText('Caregiver review needed')).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Mark dose as taken' })).toBeNull();
-    fireEvent.press(screen.getByRole('button', { name: 'Contact caregiver' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Contact caregiver' }));
     expect(mockNeedsHelpMutate).toHaveBeenCalledWith('dose-1');
   });
 
@@ -125,7 +125,7 @@ describe('VerifyMedicationScreen', () => {
     await verifyOnce();
 
     expect(await screen.findByText('Image unreadable')).toBeOnTheScreen();
-    fireEvent.press(screen.getByRole('button', { name: 'Retake verification photo' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Retake verification photo' }));
     expect(screen.queryByText('Image unreadable')).toBeNull();
     expect(screen.getByRole('button', { name: 'Capture and check medication' })).toBeOnTheScreen();
   });
@@ -135,7 +135,7 @@ describe('VerifyMedicationScreen', () => {
     mockVerifyMedicationImage.mockResolvedValue(result('MATCH_LIKELY', safetyMessage));
 
     await verifyOnce();
-    fireEvent.press(await screen.findByRole('button', { name: 'Read verification result' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Read verification result' }));
 
     expect(mockSpeak).toHaveBeenCalledWith(safetyMessage, { language: 'en-US', rate: 0.9 });
   });
@@ -157,15 +157,15 @@ describe('VerifyMedicationScreen', () => {
 });
 
 async function verifyOnce() {
-  renderWithAccessibility(
+  await renderWithAccessibility(
     <VerifyMedicationScreen
       navigation={{ navigate: jest.fn() } as never}
       route={{ params: { doseLogId: 'dose-1' } } as never}
     />,
   );
 
-  fireEvent.press(screen.getByRole('button', { name: 'Allow camera for verification' }));
-  fireEvent.press(await screen.findByRole('button', { name: 'Capture and check medication' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Allow camera for verification' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Capture and check medication' }));
 
   await waitFor(() => {
     expect(mockVerifyMedicationImage).toHaveBeenCalled();

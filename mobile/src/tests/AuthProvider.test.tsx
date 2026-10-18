@@ -39,7 +39,7 @@ describe('AuthProvider production auth behavior', () => {
   it('clears persisted tokens when startup user lookup is unauthorized', async () => {
     (apiRequest as jest.Mock).mockRejectedValueOnce(new Error('unauthorized'));
 
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <AuthProvider>
         <AuthProbe />
       </AuthProvider>,
@@ -68,14 +68,14 @@ describe('AuthProvider production auth behavior', () => {
       return Promise.resolve(null);
     });
 
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <AuthProvider>
         <AuthProbe />
       </AuthProvider>,
     );
 
     expect(await screen.findByText('signed-in:patient@example.com')).toBeOnTheScreen();
-    fireEvent.press(screen.getByRole('button', { name: 'Sign out test user' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign out test user' }));
 
     await waitFor(() => {
       expect(apiRequest).toHaveBeenCalledWith('/api/v1/auth/logout', {

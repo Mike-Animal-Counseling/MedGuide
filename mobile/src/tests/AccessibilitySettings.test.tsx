@@ -16,8 +16,8 @@ describe('accessibility settings screen', () => {
     (apiRequest as jest.Mock).mockResolvedValue({ id: 'link-1', status: 'REVOKED' });
   });
 
-  it('toggles high contrast and large text behavior through accessible controls', () => {
-    renderWithAccessibility(
+  it('toggles high contrast and large text behavior through accessible controls', async () => {
+    await renderWithAccessibility(
       <>
         <AccessibilitySettingsScreen />
         <ThemeProbe />
@@ -26,17 +26,17 @@ describe('accessibility settings screen', () => {
 
     expect(screen.getByText('contrast:false text:16')).toBeOnTheScreen();
 
-    fireEvent(screen.getByLabelText('High contrast'), 'valueChange', true);
-    fireEvent(screen.getByLabelText('Large text'), 'valueChange', true);
+    await fireEvent(screen.getByLabelText('High contrast'), 'valueChange', true);
+    await fireEvent(screen.getByLabelText('Large text'), 'valueChange', true);
 
     expect(screen.getByText('contrast:true text:20')).toBeOnTheScreen();
   });
 
   it('revokes caregiver access through the backend', async () => {
-    renderWithAccessibility(<AccessibilitySettingsScreen />);
+    await renderWithAccessibility(<AccessibilitySettingsScreen />);
 
-    fireEvent.changeText(screen.getByLabelText('Caregiver link id'), 'link-1');
-    fireEvent.press(screen.getByRole('button', { name: 'Revoke caregiver access' }));
+    await fireEvent.changeText(screen.getByLabelText('Caregiver link id'), 'link-1');
+    await fireEvent.press(screen.getByRole('button', { name: 'Revoke caregiver access' }));
 
     await waitFor(() => {
       expect(apiRequest).toHaveBeenCalledWith('/api/v1/caregivers/links/link-1/revoke', {

@@ -10,6 +10,25 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      # Expo validates native, React, and test-tool versions as one supported SDK stack.
+      expo-stack:
+        patterns:
+          - "expo"
+          - "expo-*"
+          - "@expo/*"
+          - "eslint-config-expo"
+          - "react"
+          - "react-dom"
+          - "react-native"
+          - "react-native-*"
+          - "@types/react*"
+          - "jest"
+          - "jest-expo"
+          - "@types/jest"
+          - "@testing-library/react-native"
+          - "react-test-renderer"
+          - "test-renderer"
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:

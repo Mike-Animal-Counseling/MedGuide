@@ -28,14 +28,14 @@ describe('ScanLabelScreen camera fallback', () => {
   it('shows an accessible manual-entry fallback when camera permission is denied', async () => {
     mockRequestCameraPermission.mockResolvedValue(false);
 
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <ScanLabelScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />,
     );
 
-    fireEvent.press(screen.getByRole('button', { name: 'Allow camera' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Allow camera' }));
 
     expect(await screen.findByText('Camera permission was not granted. You can add this medication manually.')).toBeOnTheScreen();
-    fireEvent.press(screen.getByRole('button', { name: 'Enter medication manually' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Enter medication manually' }));
     expect(mockNavigate).toHaveBeenCalledWith('ManualMedicationForm');
   });
 });

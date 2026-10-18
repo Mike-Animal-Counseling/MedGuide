@@ -23,24 +23,24 @@ describe('Auth screens', () => {
     jest.clearAllMocks();
   });
 
-  it('validates login before calling auth', () => {
-    renderWithAccessibility(<LoginScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />);
+  it('validates login before calling auth', async () => {
+    await renderWithAccessibility(<LoginScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />);
 
-    fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(mockSignIn).not.toHaveBeenCalled();
     expect(screen.getByText('Enter a valid email and password.')).toBeOnTheScreen();
   });
 
-  it('validates registration password strength before calling auth', () => {
-    renderWithAccessibility(
+  it('validates registration password strength before calling auth', async () => {
+    await renderWithAccessibility(
       <RegisterScreen navigation={{ navigate: mockNavigate } as never} route={{} as never} />,
     );
 
-    fireEvent.changeText(screen.getByLabelText('Full name'), 'Pat Patient');
-    fireEvent.changeText(screen.getByLabelText('Email address'), 'pat@example.com');
-    fireEvent.changeText(screen.getByLabelText('Password'), 'short');
-    fireEvent.press(screen.getByRole('button', { name: 'Register' }));
+    await fireEvent.changeText(screen.getByLabelText('Full name'), 'Pat Patient');
+    await fireEvent.changeText(screen.getByLabelText('Email address'), 'pat@example.com');
+    await fireEvent.changeText(screen.getByLabelText('Password'), 'short');
+    await fireEvent.press(screen.getByRole('button', { name: 'Register' }));
 
     expect(mockRegister).not.toHaveBeenCalled();
     expect(

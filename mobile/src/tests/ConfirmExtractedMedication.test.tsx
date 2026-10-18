@@ -39,8 +39,8 @@ describe('ConfirmExtractedMedicationScreen', () => {
     mockApiRequest.mockResolvedValue({ id: 'med-1' });
   });
 
-  it('displays OCR output and does not create medication until confirmation', () => {
-    renderWithAccessibility(
+  it('displays OCR output and does not create medication until confirmation', async () => {
+    await renderWithAccessibility(
       <ConfirmExtractedMedicationScreen navigation={{ navigate: mockNavigate } as never} route={route as never} />,
     );
 
@@ -49,12 +49,12 @@ describe('ConfirmExtractedMedicationScreen', () => {
     expect(mockApiRequest).not.toHaveBeenCalled();
   });
 
-  it('speaks extracted fields and safety message', () => {
-    renderWithAccessibility(
+  it('speaks extracted fields and safety message', async () => {
+    await renderWithAccessibility(
       <ConfirmExtractedMedicationScreen navigation={{ navigate: mockNavigate } as never} route={route as never} />,
     );
 
-    fireEvent.press(screen.getByRole('button', { name: 'Read extracted fields' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Read extracted fields' }));
 
     expect(mockSpeak).toHaveBeenCalledWith(
       expect.stringContaining('Medication name: ExampleMed.'),
@@ -67,11 +67,11 @@ describe('ConfirmExtractedMedicationScreen', () => {
   });
 
   it('creates medication only after user confirms reviewed fields', async () => {
-    renderWithAccessibility(
+    await renderWithAccessibility(
       <ConfirmExtractedMedicationScreen navigation={{ navigate: mockNavigate } as never} route={route as never} />,
     );
 
-    fireEvent.press(screen.getByRole('button', { name: 'Confirm and save medication' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Confirm and save medication' }));
 
     await waitFor(() => {
       expect(mockApiRequest).toHaveBeenCalledWith('/api/v1/medications', {
