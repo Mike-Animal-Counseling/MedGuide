@@ -41,7 +41,7 @@
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
     "braces": "file:vendor/braces",
-    "eslint": "^9.0.0",
+    "eslint": "^10.12.0",
     "eslint-config-expo": "~58.0.4",
     "jest": "~30.5.2",
     "jest-expo": "~58.0.11",
