@@ -11,7 +11,7 @@
     "android": "expo start --localhost --android",
     "ios": "expo start --localhost --ios",
     "web": "expo start --localhost --web",
-    "lint": "eslint . --ext .js,.ts,.tsx",
+    "lint": "node node_modules/eslint-10/bin/eslint.js . --ext .js,.ts,.tsx",
     "typecheck": "node node_modules/typescript-7/bin/tsc --noEmit",
     "test": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
+    "@eslint/compat": "^2.1.1",
     "@testing-library/react-native": "^14.1.0",
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
@@ -49,7 +50,9 @@
     "sprintf-js": "file:vendor/sprintf-js",
     "test-renderer": "^1.0.0",
     "typescript": "~6.0.3",
-    "typescript-7": "npm:typescript@~7.0.2"
+    "typescript-7": "npm:typescript@~7.0.2",
+    "eslint-10": "npm:eslint@^10.13.0",
+    "eslint-import-resolver-typescript": "^3.10.1"
   },
   "jest": {
     "preset": "jest-expo",
