@@ -17,3 +17,9 @@ Do not replace the API package with TypeScript 7 until its consumers support tha
 React Native Testing Library 14 uses `test-renderer`. Rendering and fire events are asynchronous: await every `render`, shared rendering helper, and `fireEvent` call before querying or asserting the resulting interface. The complete behavior suite and the existing coverage thresholds remain required. Jest retains the JS/TS test filename patterns used before Jest 30. Node security regression files use their own runner through `npm run test:security`, which is a separate required CI step.
 
 CI configuration, project-authored diagnostics, and contribution standards use English.
+
+## ESLint rule compatibility
+
+The lint script runs ESLint 10 explicitly through the `eslint-10` npm alias. The separate `eslint` package remains on version 9 to satisfy the Expo preset plugins' declared API and peer requirements. Both versions are locked; normal `npm ci` and `npm ls` validate the dependency tree. Use `npm run lint` to select the current engine reliably.
+
+The official `@eslint/compat` adapter provides removed rule-context methods while preserving the preset's rules, severities, options, and file matching. The TypeScript import resolver is an explicit dependency so preset settings can resolve it from the project regardless of transitive dependency layout. Remove the compatibility setup when every preset plugin supports the current API directly. See the [official compatibility utilities](https://github.com/eslint/rewrite/tree/main/packages/compat).
