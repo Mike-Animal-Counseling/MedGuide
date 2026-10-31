@@ -31,7 +31,7 @@ infra/              Infrastructure notes
 ## Prerequisites
 
 - Python 3.12
-- Node.js 22.13+
+- Node.js 24+
 - Docker with Docker Compose
 
 ## Local Setup

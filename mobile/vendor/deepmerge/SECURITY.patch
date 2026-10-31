@@ -1,0 +1,35 @@
+diff --git a/upstream/dist/cjs.js b/index.cjs
+index 7c36cbd..e380c18 100644
+--- a/upstream/dist/cjs.js
++++ b/index.cjs
+@@ -76,11 +76,17 @@ function propertyIsUnsafe(target, key) {
+ 			&& Object.propertyIsEnumerable.call(target, key)) // and also unsafe if they're nonenumerable.
+ }
+ 
++// Define own data properties instead of invoking Object.prototype setters.
++// This also protects keys copied from the merge target (GHSA-gcqx-w48m-w2h4).
++function defineMergedProperty(object, key, value) {
++ Object.defineProperty(object, key, { value: value, enumerable: true, configurable: true, writable: true });
++}
++
+ function mergeObject(target, source, options) {
+ 	var destination = {};
+ 	if (options.isMergeableObject(target)) {
+ 		getKeys(target).forEach(function(key) {
+-			destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
++			defineMergedProperty(destination, key, cloneUnlessOtherwiseSpecified(target[key], options));
+ 		});
+ 	}
+ 	getKeys(source).forEach(function(key) {
+@@ -89,9 +95,9 @@ function mergeObject(target, source, options) {
+ 		}
+ 
+ 		if (propertyIsOnObject(target, key) && options.isMergeableObject(source[key])) {
+-			destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
++			defineMergedProperty(destination, key, getMergeFunction(key, options)(target[key], source[key], options));
+ 		} else {
+-			destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
++			defineMergedProperty(destination, key, cloneUnlessOtherwiseSpecified(source[key], options));
+ 		}
+ 	});
+ 	return destination

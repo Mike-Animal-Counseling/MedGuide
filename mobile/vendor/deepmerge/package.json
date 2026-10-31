@@ -1,0 +1,16 @@
+{
+  "name": "@medguide/deepmerge-hardened",
+  "version": "4.3.1-medguide.1",
+  "private": true,
+  "description": "Explicit local deepmerge fork with prototype-safe destination writes.",
+  "license": "MIT",
+  "main": "index.cjs",
+  "types": "index.d.ts",
+  "files": [
+    "index.cjs",
+    "index.d.ts",
+    "license.txt",
+    "SECURITY.patch",
+    "UPSTREAM.md"
+  ]
+}
