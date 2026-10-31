@@ -5,6 +5,19 @@ organize medication information. It is an assistance tool only: it does not diag
 prescribe medication, recommend dosages, or replace advice from a qualified healthcare
 professional.
 
+[Local Setup](#local-setup) · [API Guide](docs/API.md) · [Quality Checks](#quality-commands) · [Release Readiness](docs/PRODUCTION_READINESS_CHECKLIST.md)
+
+## Product Workflow
+
+| Step | What the application supports |
+| --- | --- |
+| Organize | Create and manage user-confirmed medication records |
+| Schedule | Set up medication schedules and review today's doses |
+| Track | Record taken, skipped, or needs-help dose states |
+| Coordinate | Invite caregivers and control their access to linked patient records |
+
+See the [API guide](docs/API.md) for supported operations and the [readiness checklist](docs/PRODUCTION_READINESS_CHECKLIST.md) for provider configuration and deployment work.
+
 ## Repository
 
 ```text
