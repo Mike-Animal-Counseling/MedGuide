@@ -1,141 +1,92 @@
 # MedGuide AI
 
-MedGuide AI is a medication assistance application designed to help people understand and
-organize medication information. It is an assistance tool only: it does not diagnose conditions,
-prescribe medication, recommend dosages, or replace advice from a qualified healthcare
-professional.
+**Medication schedules, caregiver coordination, and dose history in one place.**
 
-[Local Setup](#local-setup) · [API Guide](docs/API.md) · [Quality Checks](#quality-commands) · [Release Readiness](docs/PRODUCTION_READINESS_CHECKLIST.md)
+> MedGuide is an assistance tool, not medical advice. It does not diagnose conditions,
+> prescribe medication, recommend dosages, or replace a qualified healthcare professional.
 
-## Product Workflow
+[Quick start](#quick-start) · [API guide](docs/API.md) · [Setup details](docs/SETUP.md) · [Release readiness](docs/PRODUCTION_READINESS_CHECKLIST.md)
 
-| Step | What the application supports |
-| --- | --- |
-| Organize | Create and manage user-confirmed medication records |
-| Schedule | Set up medication schedules and review today's doses |
-| Track | Record taken, skipped, or needs-help dose states |
-| Coordinate | Invite caregivers and control their access to linked patient records |
+## What it does
 
-See the [API guide](docs/API.md) for supported operations and the [readiness checklist](docs/PRODUCTION_READINESS_CHECKLIST.md) for provider configuration and deployment work.
+- **Organize** — create and manage user-confirmed medication records.
+- **Schedule** — set medication schedules and review today's doses.
+- **Track** — record taken, skipped, and needs-help dose states.
+- **Coordinate** — invite caregivers with scoped access to linked patient records.
 
-## Repository
+## Stack
 
-```text
-backend/            FastAPI API and database migrations
-mobile/             Expo React Native application
-docs/               Architecture, safety, accessibility, and operations guidance
-infra/              Infrastructure notes
-.github/workflows/  Continuous integration
+FastAPI · PostgreSQL · Redis · Celery · Expo React Native
+
+## Quick start
+
+Requires Python 3.12, Node.js 24+, and Docker.
+
+```bash
+cp .env.example .env        # set JWT_SECRET before using auth
+docker compose up -d        # PostgreSQL and Redis
 ```
-
-## Prerequisites
-
-- Python 3.12
-- Node.js 24+
-- Docker with Docker Compose
-
-## Local Setup
-
-1. Create local configuration:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Replace `JWT_SECRET` before using authentication outside an isolated local environment. All
-   required secrets and provider placeholders are centralized in
-   [docs/PLACEHOLDERS_AND_SECRETS.md](docs/PLACEHOLDERS_AND_SECRETS.md).
-
-2. Start PostgreSQL and Redis:
-
-   ```bash
-   docker compose up -d
-   ```
-
-3. Install and run the backend:
-
-   ```bash
-   cd backend
-   python -m venv .venv
-   # Activate .venv for your shell
-   python -m pip install -e ".[dev]"
-   uvicorn app.main:app --reload
-   ```
-
-4. Run the reminder worker and scheduler in separate terminals:
-
-   ```bash
-   cd backend
-   celery -A app.worker.celery_app worker --loglevel=INFO --pool=solo
-   celery -A app.worker.celery_app beat --loglevel=INFO
-   ```
-
-   The `--pool=solo` option is for Windows local development. Use supervised worker processes in
-   production.
-
-5. Install and run the mobile app in another terminal:
-
-   ```bash
-   cd mobile
-   npm install
-   npm start
-   ```
-
-The API liveness endpoint is available at `http://localhost:8000/health`. The readiness endpoint
-at `http://localhost:8000/ready` returns success only when PostgreSQL and Redis respond.
-
-## GitHub Setup
-
-Before pushing or configuring providers, follow [docs/SETUP.md](docs/SETUP.md). It explains how to
-avoid committing secrets, confirm GitHub Actions, and configure providers one step at a time.
-
-## Quality Commands
 
 Backend:
 
 ```bash
 cd backend
-ruff check .
-ruff format --check .
-mypy
-pytest
-alembic upgrade head
+python -m venv .venv
+# activate the venv for your shell
+python -m pip install -e ".[dev]"
+uvicorn app.main:app --reload
 ```
 
-Mobile:
+Reminder worker and scheduler, each in its own terminal:
+
+```bash
+cd backend
+celery -A app.worker.celery_app worker --loglevel=INFO --pool=solo
+celery -A app.worker.celery_app beat --loglevel=INFO
+```
+
+Mobile app:
 
 ```bash
 cd mobile
-npm run lint
-npm run typecheck
-npm test
+npm install
+npm start
 ```
 
-Validate local infrastructure configuration:
+`http://localhost:8000/health` is the liveness endpoint. `/ready` succeeds only when
+PostgreSQL and Redis respond.
+
+## Quality checks
 
 ```bash
-docker compose config
+cd backend
+ruff check . && ruff format --check . && mypy && pytest
+
+cd mobile
+npm run lint && npm run typecheck && npm test
+
+docker compose config   # validates local infrastructure
 ```
 
-## Production Requirements
+## Documentation
 
-The backend includes real S3, AWS Textract, AWS Rekognition, and Expo push adapters behind typed
-interfaces. They require real credentials before production use. Notification email/SMS,
-generative AI, and external authentication providers are not selected. Production must never fall
-back to fabricated provider output. Treat
-[docs/PLACEHOLDERS_AND_SECRETS.md](docs/PLACEHOLDERS_AND_SECRETS.md) as the single source of truth
-for secrets, placeholder values, provider setup, and production readiness checklists.
-Use [docs/SETUP.md](docs/SETUP.md) for the simpler step-by-step provider registration order.
+| Document | Contents |
+| --- | --- |
+| [API guide](docs/API.md) | Supported operations and safety boundaries |
+| [Setup](docs/SETUP.md) | GitHub and provider configuration, step by step |
+| [Secrets and placeholders](docs/PLACEHOLDERS_AND_SECRETS.md) | Single source of truth for configuration |
+| [Safety, privacy, accessibility](docs/SAFETY_PRIVACY_ACCESSIBILITY.md) | Read before adding AI-generated content |
+| [Deployment](docs/DEPLOYMENT.md) | Render/Railway, AWS ECS, migrations, workers |
+| [Production checklist](docs/PRODUCTION_READINESS_CHECKLIST.md) | Release status, credentials, and blockers |
 
-Review [docs/SAFETY_PRIVACY_ACCESSIBILITY.md](docs/SAFETY_PRIVACY_ACCESSIBILITY.md) before
-introducing any AI-generated medication content.
+## Production notes
 
-Medication endpoint behavior and safety boundaries are documented in [docs/API.md](docs/API.md).
-Deployment assets, migration commands, worker commands, Render/Railway notes, and AWS ECS
-production guidance are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-The current release readiness status, manual tasks, required credentials, and deployment blockers
-are tracked in [docs/PRODUCTION_READINESS_CHECKLIST.md](docs/PRODUCTION_READINESS_CHECKLIST.md).
+Real S3, AWS Textract, AWS Rekognition, and Expo push adapters are included behind typed
+interfaces and need real credentials before production use. Notification email/SMS,
+generative AI, and external authentication providers are not selected. The application
+must never fall back to fabricated provider output.
 
-## Security and deployment
+## Security
 
-Read the [security policy](SECURITY.md) and [production requirements](docs/PRODUCTION_SECURITY.md) before deployment.
+Read the [security policy](SECURITY.md) and
+[production security requirements](docs/PRODUCTION_SECURITY.md) before deployment.
