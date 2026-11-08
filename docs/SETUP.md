@@ -30,7 +30,7 @@ Not done yet:
 Repository:
 
 ```text
-https://github.com/Mike-Animal-Counseling/MedGuide.git
+https://github.com/Mike-Animal-Counseling/med-guide.git
 ```
 
 GitHub Actions should show these as green:
