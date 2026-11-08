@@ -1,22 +1,43 @@
 # MedGuide AI
 
-**Medication schedules, caregiver coordination, and dose history in one place.**
+**Scan a medication label, confirm it, get dose reminders, and check a pill or bottle photo against
+the medication that is due — with caregiver oversight.**
 
-> MedGuide is an assistance tool, not medical advice. It does not diagnose conditions,
-> prescribe medication, recommend dosages, or replace a qualified healthcare professional.
+MedGuide is a mobile medication companion for patients and the people who help them. It turns a
+label photo into a medication record the patient confirms, schedules doses, sends reminders, and
+compares a photo with the medication that is currently due before the dose is recorded.
 
 [Quick start](#quick-start) · [API guide](docs/API.md) · [Setup details](docs/SETUP.md) · [Release readiness](docs/PRODUCTION_READINESS_CHECKLIST.md)
 
-## What it does
+## How it works
 
-- **Organize** — create and manage user-confirmed medication records.
-- **Schedule** — set medication schedules and review today's doses.
-- **Track** — record taken, skipped, and needs-help dose states.
-- **Coordinate** — invite caregivers with scoped access to linked patient records.
+1. **Scan** — photograph a medication label. OCR proposes fields; nothing is saved until the patient confirms them.
+2. **Schedule** — set dose times and see today's schedule. As-needed schedules are reference-only and never generate dose logs.
+3. **Check** — at dose time, take a photo of the pill or bottle. MedGuide compares it with the medication that is due and returns `MATCH_LIKELY`, `MATCH_UNCERTAIN`, `NO_MATCH`, `UNREADABLE_IMAGE`, or `CAREGIVER_REVIEW_REQUIRED`.
+4. **Record** — confirm taken, skip, or mark needs help. A check never changes the dose log by itself.
+5. **Coordinate** — invite a caregiver with view-only, manage-medications, or full-access permission; the patient can revoke access at any time.
+
+## Safety boundary
+
+MedGuide records information the patient has confirmed. It does not diagnose conditions, prescribe
+medication, recommend dosages, or generate medication instructions. OCR text is not verified as
+correct, and photo verification only compares an image with the medication that is currently due —
+it cannot identify every medication. Every result requires the patient to confirm before a dose is
+recorded.
+
+## Features
+
+- Label scanning with image-quality checks and explicit patient confirmation.
+- Schedules and dose history with on-time, late, skipped, and needs-help states.
+- Push reminders through Expo, plus a local fallback; reminder wording is generic and contains no dosage advice.
+- Photo verification with conservative, voice-ready safety wording.
+- Caregiver access with scoped permissions and a verification-review view.
+- Accessibility: read-aloud prompts, large actions, high contrast, large text, and screen-reader labels.
+- Privacy: private S3 uploads via signed URLs, data export, and image deletion.
 
 ## Stack
 
-FastAPI · PostgreSQL · Redis · Celery · Expo React Native
+FastAPI · PostgreSQL · Redis · Celery · Expo React Native · AWS Textract and Rekognition adapters
 
 ## Quick start
 
@@ -72,7 +93,7 @@ docker compose config   # validates local infrastructure
 
 | Document | Contents |
 | --- | --- |
-| [API guide](docs/API.md) | Supported operations and safety boundaries |
+| [API guide](docs/API.md) | Endpoints, permission model, OCR confirmation, and dose/verification rules |
 | [Setup](docs/SETUP.md) | GitHub and provider configuration, step by step |
 | [Secrets and placeholders](docs/PLACEHOLDERS_AND_SECRETS.md) | Single source of truth for configuration |
 | [Safety, privacy, accessibility](docs/SAFETY_PRIVACY_ACCESSIBILITY.md) | Read before adding AI-generated content |
